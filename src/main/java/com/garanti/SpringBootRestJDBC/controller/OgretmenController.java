@@ -2,6 +2,10 @@ package com.garanti.SpringBootRestJDBC.controller;
 
 import com.garanti.SpringBootRestJDBC.model.Ogretmen;
 import com.garanti.SpringBootRestJDBC.repo.OgretmenRepo;
+import com.garanti.SpringBootRestJDBC.service.OgretmenService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +14,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Bu anotasyonlar class'ların başına yazılır ve bu class'ın
@@ -26,11 +31,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "ogretmen")
-// sadece DersRepo class'ının hatasını yakalamak için yazdık
-@RestControllerAdvice(basePackageClasses = OgretmenRepo.class)
+@RestControllerAdvice(basePackageClasses = OgretmenRepo.class) // sadece DersRepo class'ının hatasını yakalamak için yazdık
+//@io.swagger.v3.oas.annotations.tags.Tag (description = "ogretmen endpoint", name = "ogretmen") // swagger için isim açıklama yazılabilir
 public class OgretmenController
 {
     // localhost:9090/ogretmen
+
+    private ResourceBundleMessageSource messageSource;
+
     @ExceptionHandler(value = BadSqlGrammarException.class)
     public void badSqlGrammerExceptionHandler(Exception e)
     {
@@ -55,21 +63,22 @@ public class OgretmenController
 
     // Dependency injection
 //    @Autowired // required özelliğini dene iki repodan autowired almaya çalışsın mesela
-    private OgretmenRepo repo;
+    private OgretmenService service;
 
-    public OgretmenController (OgretmenRepo repo)
+    public OgretmenController (OgretmenService service, ResourceBundleMessageSource messageSource)
     {
         // @Autowired yerine bu şekilde constructor injection yapılabilir.
         // this.repo = new OgretmenRepo(); // yazmak yerine dışardan yani app context ten geliyor
         // Bu kullanımda OgretmenRepo private olmalı.
-        this.repo = repo;
+        this.service = service;
+        this.messageSource = messageSource;
     }
 
     @GetMapping(path = "getAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List< Ogretmen >> getAll()
     {
         // localhost:9090/ogretmen/getAll
-        List<Ogretmen> res = repo.getAll();
+        List<Ogretmen> res = service.getAll();
         if ( res == null ||res.size() == 0 ) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
@@ -82,14 +91,14 @@ public class OgretmenController
     public ResponseEntity<List<Ogretmen>> getByIdQueryParam(@RequestParam(value = "name", required = true) String name)
     {
         // localhost:9090/ogretmen/findAllByName?name=a
-        return ResponseEntity.ok(this.repo.getAllLike(name));
+        return ResponseEntity.ok(this.service.getAllLike(name));
     }
 
     @GetMapping(path = "getByIdHeader", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogretmen> getByIdHeader(@RequestHeader (name = "id") Integer id)
     {
         // localhost:9090/ogretmen/getById?id=1
-        Ogretmen res = repo.getById(id);
+        Ogretmen res = service.getById(id);
         if ( res != null ) {
             return ResponseEntity.ok(res);
         }
@@ -102,7 +111,7 @@ public class OgretmenController
     public ResponseEntity<Ogretmen> getByIdQueryParam(@RequestParam (value = "id", required = true) Integer id)
     {
         // localhost:9090/ogretmen/getById?id=1
-        Ogretmen res = repo.getById(id);
+        Ogretmen res = service.getById(id);
         if ( res != null ) {
             return ResponseEntity.ok(res);
         }
@@ -112,13 +121,15 @@ public class OgretmenController
     }
 
     @GetMapping(path = "getById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    @io.swagger.v3.oas.annotations.tags.Tag (description = "Bulunursa 200 döndür", name = "ID ile getir")
+    @Operation (description = "Bulunursa 200 bulunamazsa 204", summary = "ID ile getir")
     public ResponseEntity<Ogretmen> getByIdPathParam(@PathVariable(value = "id") Integer id)
     {
         // localhost:9090/ogretmen/getById/1
         //bütün parametreleri vermek zorundayız
         //consume restful servisin dışardan alacağı data türünü belirtir
         //produce web servisin dışarıya vereceği türü belirtir
-        Ogretmen res = repo.getById(id);
+        Ogretmen res = service.getById(id);
         if ( res != null ) {
             return ResponseEntity.ok(res);
         }
@@ -128,13 +139,15 @@ public class OgretmenController
     }
 
     @PostMapping(path = "save", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> save(@RequestBody Ogretmen ogretmen)
+    public ResponseEntity<String> save(@RequestBody Ogretmen ogretmen, Locale locale)
     {
         // localhost:9090/ogretmen/save
+        //
         // {"name":"RestTest", "is_GICIK": true}
-        if (repo.save(ogretmen))
+        if ( service.save(ogretmen))
         {
-            return ResponseEntity.status(HttpStatus.CREATED).body(ogretmen.getNAME() + " isimli öğretmen başarıyla eklendi");
+            String text = messageSource.getMessage("ogretmen.save.success",null,locale);
+            return ResponseEntity.status(HttpStatus.CREATED).body(text);
         }
         else
         {
@@ -145,10 +158,11 @@ public class OgretmenController
     // delete metodunda 403 forbidden nasıl çalışır
 
     @DeleteMapping(path = "deleteById/{id}")
+    @Hidden // bu metodu sadece swagger arayüzünde gizliyor
     public ResponseEntity<String> deleteById(@PathVariable(value = "id") Integer id)
     {
         // localhost:9090/ogretmen/deleteById/1
-        if (repo.deleteById(id))
+        if ( service.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
         }
@@ -159,10 +173,11 @@ public class OgretmenController
     }
 
     @DeleteMapping(path = "deleteByIdHeader")
+    @Hidden // bu metodu sadece swagger arayüzünde gizliyor
     public ResponseEntity<String> deleteByIdHeader(@RequestHeader(value = "id") Integer id)
     {
         // localhost:9090/ogretmen/deleteById/1
-        if (repo.deleteById(id))
+        if ( service.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
         }
@@ -176,7 +191,7 @@ public class OgretmenController
     public ResponseEntity<String> update(@RequestBody Ogretmen ogretmen) {
 //        localhost:9090/ogretmen/update
 //        {"id":16, "name": "Mahmut"}
-        if (repo.update(ogretmen))
+        if ( service.update(ogretmen))
         {
             return ResponseEntity.status(HttpStatus.CREATED).body(ogretmen.getNAME() + " isimli öğretmen başarıyla güncellendi");
         }
