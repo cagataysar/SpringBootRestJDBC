@@ -126,9 +126,9 @@ public class OgretmenController
     public ResponseEntity<Ogretmen> getByIdPathParam(@PathVariable(value = "id") Integer id)
     {
         // localhost:9090/ogretmen/getById/1
-        //bütün parametreleri vermek zorundayız
-        //consume restful servisin dışardan alacağı data türünü belirtir
-        //produce web servisin dışarıya vereceği türü belirtir
+        // bütün parametreleri vermek zorundayız
+        // consume restful servisin dışardan alacağı data türünü belirtir
+        // produce web servisin dışarıya vereceği türü belirtir
         Ogretmen res = service.getById(id);
         if ( res != null ) {
             return ResponseEntity.ok(res);
@@ -142,7 +142,6 @@ public class OgretmenController
     public ResponseEntity<String> save(@RequestBody Ogretmen ogretmen, Locale locale)
     {
         // localhost:9090/ogretmen/save
-        //
         // {"name":"RestTest", "is_GICIK": true}
         if ( service.save(ogretmen))
         {

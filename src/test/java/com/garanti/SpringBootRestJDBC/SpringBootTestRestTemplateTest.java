@@ -1,10 +1,9 @@
 package com.garanti.SpringBootRestJDBC;
 
-/*
 // test paketine yazdığım için maven ile otomatik entegre oldu
 // webEnvironment yazılmazsa tomcat ayağa kalkamadı
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT) // spring framework olursa @ExtendWith({SpringExtension.class}) gerekebilir
-@TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
+/*@SpringBootTest (webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT) // spring framework olursa @ExtendWith({SpringExtension.class}) gerekebilir
+@TestMethodOrder (value = MethodOrderer.OrderAnnotation.class)
 class SpringBootTestRestTemplateTest
 {
     @Autowired

@@ -4,6 +4,7 @@ package com.garanti.SpringBootRestJDBC.service;
 import com.garanti.SpringBootRestJDBC.model.Ogretmen;
 import com.garanti.SpringBootRestJDBC.repo.OgretmenRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 // burası hem business hem de proxy katmanı
 public class OgretmenService {
 
+    @Autowired
     private OgretmenRepo repo;
 
     public boolean save ( Ogretmen ogretmen)

@@ -88,7 +88,7 @@ public class OgrenciController
     public ResponseEntity<String> save(@RequestBody Ogrenci ogrenci)
     {
 //         localhost:9090/ogrenci/save
-        // {"name":"RestTest", "is_GICIK": true}
+        // JSON ---> {"name":"Hamza", "ogr_NUMBER": 8888, "year": 1}
         if (repo.save(ogrenci))
         {
             return ResponseEntity.status(HttpStatus.CREATED).body("Başarı ile kaydedildi");

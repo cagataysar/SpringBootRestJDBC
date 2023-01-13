@@ -7,7 +7,7 @@ public class AOP
 {
 //    // içinde Ogrenci kelimesi geçen metodları yakaladım
 //    // @Pointcut(value = "execution(public * *(..))")
-//    @Pointcut(value = "execution(* com.garanti.SpringBootRestJDBC.controller.OgretmenController.*get*(..))")
+//    @Pointcut (value = "execution(* com.garanti.SpringBootRestJDBC.controller.OgretmenController.*get*(..))")
 //    // OgretmenController içindeki bütün metodlar
 //    // @Pointcut(value = "execution(* com.garanti.SpringBootRestJDBC.controller.OgretmenController.*(..))")
 //    private void ogretmengetpointcut()
