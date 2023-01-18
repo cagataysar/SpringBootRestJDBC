@@ -19,7 +19,8 @@ public class OgretmenService {
 
     public boolean save ( Ogretmen ogretmen)
     {
-        try {
+        try
+        {
             return  repo.save(ogretmen);
         }
         catch (Exception e) {

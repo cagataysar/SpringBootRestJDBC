@@ -1,4 +1,4 @@
-package com.garanti.SpringBootRestJDBC.config;
+package com.garanti.SpringBootRestJDBC.factory;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
